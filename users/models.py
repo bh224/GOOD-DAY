@@ -15,8 +15,8 @@ class User(AbstractUser):
     status = models.BooleanField(default=True)
     work_start = models.DateField()
     work_end = models.DateField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
 class TodayState(CommonMode):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)

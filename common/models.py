@@ -6,8 +6,8 @@ class CommonMode(models.Model):
     created, updated date
     """
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_add=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
     class Meta:
         abstract = True
