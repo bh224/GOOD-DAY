@@ -38,6 +38,9 @@ ALLOWED_HOSTS = []
 CUSTOM_APPS = [
     "common.apps.CommonConfig",
     "users.apps.UsersConfig",
+    "tasks.apps.TasksConfig",
+    "comments.apps.CommentsConfig",
+
 ]
 
 SYSTEM_APPS = [
