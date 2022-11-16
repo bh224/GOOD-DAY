@@ -1,5 +1,6 @@
 .env
 migrations/
+my.cnf
 
 
 

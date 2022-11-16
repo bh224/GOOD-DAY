@@ -6,8 +6,9 @@ from .models import Task
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = (
-        "sender",
+        "pk",
         "author",
+        "tasker",
         "limit_date",
         "status",
     )
