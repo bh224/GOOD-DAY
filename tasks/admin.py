@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task
+from .models import Task, Comment
 
 # Register your models here.
 
@@ -11,4 +11,12 @@ class TaskAdmin(admin.ModelAdmin):
         "tasker",
         "limit_date",
         "status",
+    )
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "author",
+        "task",
     )

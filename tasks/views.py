@@ -1,13 +1,13 @@
 from datetime import date
-from django.shortcuts import render
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound, PermissionDenied, ParseError
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from users.models import User
-from .models import Task
-from .serializers import TaskSerializer, TasksListSerializers
+from .models import Task, Comment
+from .serializers import TaskSerializer, TasksListSerializers, CommentSerializer
 from tasks import serializers
 
 # Create your views here.
@@ -114,3 +114,68 @@ class TaskDetail(APIView):
             raise PermissionDenied
         task.delete()
         return Response({"msg": "done"})
+
+
+class Comments(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_obj(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        task = self.get_obj(pk)
+        all_comments = task.comments.all()
+        serializer = CommentSerializer(all_comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        task = self.get_obj(pk)
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            comment = serializer.save(task=task, author=request.user)
+            serializer = CommentSerializer(comment)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class CommentDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_task(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise NotFound
+
+    def get_comment(self, pk):
+        try:
+            return Comment.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def get(self, request, pk, comment_id):
+        comment = self.get_comment(comment_id)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+
+    def put(self, request, pk, comment_id):
+        task = self.get_task(pk)
+        comment = self.get_comment(comment_id)
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_comment = serializer.save(task=task, author=request.user)
+            serializer = CommentSerializer(updated_comment)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk, comment_id):
+        comment = self.get_comment(comment_id)
+        if comment.author != request.user:
+            raise ParseError("접근권한이 없습니다")
+        comment.delete()
+        return Response(status=HTTP_204_NO_CONTENT)

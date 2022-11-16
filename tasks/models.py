@@ -1,7 +1,4 @@
-from email.policy import default
-from random import choices
 from django.db import models
-
 from common.models import CommonMode
 
 # Create your models here.
@@ -33,3 +30,12 @@ class Task(CommonMode):
 
     def __str__(self):
         return f"Task num: {self.pk}"
+
+
+class Comment(CommonMode):
+    task = models.ForeignKey("tasks.Task", on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="comments")
+    content = models.TextField()
+
+    def __str__(self):
+        return f"{self.task.pk} : {self.content}"
