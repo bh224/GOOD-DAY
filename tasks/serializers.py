@@ -20,6 +20,8 @@ class TasksListSerializers(ModelSerializer):
             "content",
             "status",
             "task_kind",
+            "created_at",
+            "limit_date",
         )
 
     def __str__(self):

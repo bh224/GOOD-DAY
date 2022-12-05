@@ -16,12 +16,12 @@ class Tasks(APIView):
     GETT /api/v1/tasks
     : 나와 관련된 모든 task를 불러오기 (내가 등록한 task, 남이 나에게 부여한 task, 내가 남에게 부여한 task)
     """
-
+    
     def get(self, request):
         # print(request.user.pk)
         all_tasks = Task.objects.filter(
-            Q(author=request.user.pk) | Q(tasker=request.user.pk)
-        )
+            Q(author=request.user) | Q(tasker=request.user)
+        ).order_by('-created_at')
         serializer = TasksListSerializers(
             all_tasks, many=True, context={"request": request}
         )
@@ -35,17 +35,21 @@ class Tasks(APIView):
         if request.data.get("limit_date") == None:
             limit = date.today().isoformat()
             request.data["limit_date"] = limit
+        
+        # type이 task인 경우 status는 yet으로 변경
+        if request.data.get("type") == "task":
+            request.data["status"] = "yet"
 
         serializer = TaskSerializer(data=request.data)
 
         if serializer.is_valid():
-            # 내가 등록한 내 일정인 경우 tasker = null
+            # 내가 등록한 내 일정인 경우 tasker = 나
             try:
                 tasker_pk = request.data.get("tasker")
-                print("tasker_pk", tasker_pk)
+                # print("tasker_pk", tasker_pk)
                 tasker = User.objects.get(pk=tasker_pk)
             except User.DoesNotExist:
-                tasker = None
+                tasker = request.user
             task = serializer.save(author=request.user, tasker=tasker)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
