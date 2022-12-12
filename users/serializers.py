@@ -10,11 +10,17 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 
 class WorkgroupSerializer(serializers.ModelSerializer):
-    # member = UserInfoSerializer(many=True, read_only=True)
+    members = serializers.SerializerMethodField()
 
     class Meta:
         model = Workgroup
-        fields = ("pk", "group_code", "group_name")
+        fields = ("pk", "group_code", "group_name", "members")
+
+    def get_members(self, workgroup):
+        members = workgroup.users.all()
+        # print(members)
+        serializer = UserInfoSerializer(members, many=True)
+        return serializer.data
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -30,3 +36,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "status",
             "workgroups",
         )
+
+class TodayListSerializer(serializers.ModelSerializer):
+    user = UserInfoSerializer(read_only=True)
+    class Meta:
+        model = Today
+        fields = ("pk", "user", "start_time", "end_time", "state_code")

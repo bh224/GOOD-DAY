@@ -8,7 +8,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (
             "User Info",
-            {"fields": ("username", "password", "nickname", "email", "status")},
+            {"fields": ("username", "password", "nickname", "email", "status", "workgroups")},
         ),
     )
     list_display = (
