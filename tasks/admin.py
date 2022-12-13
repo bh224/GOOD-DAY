@@ -11,6 +11,7 @@ class TaskAdmin(admin.ModelAdmin):
         "tasker",
         "limit_date",
         "status",
+        "created_at",
     )
 
 @admin.register(Comment)
