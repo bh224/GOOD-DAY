@@ -9,4 +9,5 @@ urlpatterns = [
     path("<int:pk>/", views.TaskDetail.as_view()),
     path("<int:pk>/comments/", views.Comments.as_view()),
     path("<int:pk>/comments/<int:comment_id>", views.CommentDetail.as_view()),
+    path("tasks-counts", views.task_counts),
 ]
