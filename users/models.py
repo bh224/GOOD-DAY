@@ -19,6 +19,7 @@ class User(AbstractUser):
 class Workgroup(CommonMode):
     group_code = models.CharField(max_length=100)
     group_name = models.CharField(max_length=150, null=True, blank=True)
+    description = models.CharField(max_length=250, null=True, blank=True)
     member = models.ForeignKey("users.User", on_delete=models.CASCADE)  #그룹 만든 사람
 
     def __str__(self):

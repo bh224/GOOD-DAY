@@ -8,7 +8,7 @@ urlpatterns = [
     path("workgroups/<int:pk>", views.WorkGroupDetail.as_view()),
     path("check_username", views.CheckUsername.as_view()),
     path("todays", views.Todays.as_view()),
-    path("todays/<int:pk>", views.TodayDetail.as_view()),
+    path("today", views.TodayDetail.as_view()),
     path("login", views.LogIn.as_view()),
     path("logout", views.LogOut.as_view()),
     path("kakao", views.KakaoLogin.as_view()),
