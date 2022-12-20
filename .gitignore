@@ -1,6 +1,7 @@
 .env
 migrations/
 my.cnf
+my-prod.cnf
 
 
 
