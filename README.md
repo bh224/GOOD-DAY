@@ -20,7 +20,7 @@ Role: 기획 - 배포
 Python 3.9
 Django 4.14
 Django Rest Framwork
-- ️➡️ Frontend : [소스코드](https://github.com/bh224/airbnb-clone-frontend)
+- ️➡️ Frontend : [소스코드](https://github.com/bh224/GOOD_DAY_FRONTEND)
 ReactJS
 TypeScript
 ChakraUI
