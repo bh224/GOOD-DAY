@@ -51,13 +51,27 @@ class TestUserAPI(APITestCase):
 
 class TestWorkgroupAPI(APITestCase):
 
-    def user_logged_in(self):
+    def user_logged_in(self) -> User:
         user = User.objects.create(username="test_user")
         user.set_password("1234")
         user.save()
         self.user = user
         self.client.force_login(self.user)
         return user
+    
+    def test_create_a_group(self) -> None:
+        # Given
+        user = self.user_logged_in()
+
+        # When
+        response = self.client.post(
+            "/api/v1/users/workgroups",
+        )
+        data = response.json()
+
+        # Then
+        self.assertEqual(user.pk, data['member']['pk'])
+
     
     def test_join_a_group(self) -> None:
         # Given

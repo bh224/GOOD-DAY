@@ -11,7 +11,7 @@ from users.serializers import (
     TodayListSerializer,
 )
 from users.models import Workgroup
-from users.services.user_service import get_a_group
+from users.services.user_service import create_a_group_code, get_a_group
 
 
 
@@ -54,11 +54,12 @@ class WorkGroupList(APIView):
         serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
         return Response(serializer.data)
 
-    # 그룹 생성
+    # 그룹 생성 - test done
     def post(self, request):
         user = request.user
         code = "a"
         code += str(random.randrange(100, 999))
+        code = create_a_group_code(code)
         request.data['group_code'] = code
         serializer = WorkgroupSerializer(data=request.data)
         if serializer.is_valid():
@@ -78,7 +79,6 @@ class WorkGroupList(APIView):
         user = request.user
         group_pk = request.data['pk']
         try:
-            # workgroup = Workgroup.objects.get(pk=group_pk)
             workgroup = get_a_group(group_pk)
         except Workgroup.DoesNotExist:
             raise NotFound
@@ -88,4 +88,4 @@ class WorkGroupList(APIView):
             user.workgroups.remove(workgroup)
             return Response({"msg": "그룹에서 나오셨습니다"})
         except Exception:
-            raise ParseError("그룹 삭제 실패")
+            raise ParseError("Please Try Again")

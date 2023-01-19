@@ -87,43 +87,6 @@ class CheckUsername(APIView):
             return Response(serializer.data)
 
 
-# class WorkGroupList(APIView):
-#     """유저가 가입한 그룹 관련"""
-
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         # 모든 그룹 불러오기 (?all)
-#         if bool(request.query_params.dict()) == True:
-#             groups = Workgroup.objects.all()
-#             serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
-#             return Response(serializer.data)
-#         # 유저가 속한 그룹
-#         user = request.user
-#         groups = user.workgroups.all()
-#         serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
-#         return Response(serializer.data)
-
-#     # 새로운 그룹 생성
-#     def post(self, request):
-#         user = request.user
-#         code = "a"
-#         code += str(random.randrange(100, 999))
-#         request.data['group_code'] = code
-#         serializer = WorkgroupSerializer(data=request.data)
-#         if serializer.is_valid():
-#             try:
-#                 with transaction.atomic():
-#                     workgroup = serializer.save(member=user)
-#                     user.workgroups.add(workgroup)
-#                     serializer = WorkgroupSerializer(workgroup,  context={'request': request})
-#                     return Response(serializer.data)
-#             except Exception:
-#                 raise ParseError('그룹생성실패')
-#         else:
-#             return Response(serializer.errors)
-
-
 class WorkGroupDetail(APIView):
     def get_group(self, pk):
         try:

@@ -1,6 +1,7 @@
+from django.db import IntegrityError
 from rest_framework.test import APITestCase
 from users.models import User, Workgroup
-from users.services.user_service import get_a_user
+from users.services.user_service import create_a_group_code, get_a_user
 
 
 class TestUserService(APITestCase):
@@ -31,6 +32,38 @@ class TestUserService(APITestCase):
         self.assertEqual(False, result_user.status)
 
 class TestWorkgroupServie(APITestCase):
+
+    # 그룹 생성
+    def test_create_a_group(self) -> None:
+        # Given
+        user = User.objects.create(username="test", password="1234")
+        group_code = "a123"
+
+        # When
+        workgroup = Workgroup.objects.create(group_code=group_code, member_id=user.pk)
+
+        # Then
+        self.assertEqual(group_code, workgroup.group_code)
+
+    # 그룹코드 중복검증
+    def test_group_code_should_be_only_one(self) -> None:
+        # Given
+        user = User.objects.create(username="test", password="1234")
+        group_code = create_a_group_code("a123")
+        Workgroup.objects.create(group_code=group_code, member_id=user.pk)
+
+        # Expect
+        with self.assertRaises(IntegrityError):
+            Workgroup.objects.create(group_code=group_code, member_id=user.pk)
+
+    # 내가 가입한 그룹 리스트
+    def test_all_groups_list_I_joined(self) -> None:
+        # Given
+
+        # When
+
+        # Then
+        pass
 
     # 그룹 가입
     def test_join_a_group(self) -> None:
