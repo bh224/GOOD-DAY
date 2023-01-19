@@ -1,6 +1,4 @@
-from functools import partial
 import requests
-import random
 from datetime import datetime
 from django.db.models import Q
 from django.db.models import F
@@ -89,41 +87,41 @@ class CheckUsername(APIView):
             return Response(serializer.data)
 
 
-class WorkGroupList(APIView):
-    """유저가 가입한 그룹 관련"""
+# class WorkGroupList(APIView):
+#     """유저가 가입한 그룹 관련"""
 
-    permission_classes = [IsAuthenticated]
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        # 모든 그룹 불러오기
-        if bool(request.query_params.dict()) == True:
-            groups = Workgroup.objects.all()
-            serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
-            return Response(serializer.data)
-        # 유저가 속한 그룹
-        user = request.user
-        groups = user.workgroups.all()
-        serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
-        return Response(serializer.data)
+#     def get(self, request):
+#         # 모든 그룹 불러오기 (?all)
+#         if bool(request.query_params.dict()) == True:
+#             groups = Workgroup.objects.all()
+#             serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
+#             return Response(serializer.data)
+#         # 유저가 속한 그룹
+#         user = request.user
+#         groups = user.workgroups.all()
+#         serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
+#         return Response(serializer.data)
 
-    # 새로운 그룹 생성
-    def post(self, request):
-        user = request.user
-        code = "a"
-        code += str(random.randrange(100, 999))
-        request.data['group_code'] = code
-        serializer = WorkgroupSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    workgroup = serializer.save(member=user)
-                    user.workgroups.add(workgroup)
-                    serializer = WorkgroupSerializer(workgroup,  context={'request': request})
-                    return Response(serializer.data)
-            except Exception:
-                raise ParseError('그룹생성실패')
-        else:
-            return Response(serializer.errors)
+#     # 새로운 그룹 생성
+#     def post(self, request):
+#         user = request.user
+#         code = "a"
+#         code += str(random.randrange(100, 999))
+#         request.data['group_code'] = code
+#         serializer = WorkgroupSerializer(data=request.data)
+#         if serializer.is_valid():
+#             try:
+#                 with transaction.atomic():
+#                     workgroup = serializer.save(member=user)
+#                     user.workgroups.add(workgroup)
+#                     serializer = WorkgroupSerializer(workgroup,  context={'request': request})
+#                     return Response(serializer.data)
+#             except Exception:
+#                 raise ParseError('그룹생성실패')
+#         else:
+#             return Response(serializer.errors)
 
 
 class WorkGroupDetail(APIView):
@@ -139,7 +137,7 @@ class WorkGroupDetail(APIView):
         serializer = WorkgroupSerializer(workgroup, context={"request":request})
         return Response(serializer.data)
 
-    # 그룹에 멤버 추가 (나 or 다른유저)
+    # 그룹에 멤버 추가 (나 or 다른유저) - test done
     def post(self, request, pk):
         workgroup = self.get_group(pk)
         member_pk = request.data["member_pk"]
@@ -190,9 +188,9 @@ class LogIn(APIView):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return Response({"ok": "Login Successed!"})
+            return Response({"detail": "Login Successed!"})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data="ID/패스워드를 확인해 주세요")
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail":"ID/패스워드를 확인해 주세요"})
 
 
 class LogOut(APIView):

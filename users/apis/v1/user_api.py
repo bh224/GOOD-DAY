@@ -1,4 +1,7 @@
+import random
+from django.db import transaction
 from rest_framework.views import APIView
+from rest_framework.exceptions import ParseError, NotFound
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from users.serializers import (
@@ -7,9 +10,14 @@ from users.serializers import (
     WorkgroupSerializer,
     TodayListSerializer,
 )
+from users.models import Workgroup
+from users.services.user_service import get_a_group
 
-# 유저정보
+
+
 class UserDetail(APIView):
+    """ 유저정보 """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -17,7 +25,7 @@ class UserDetail(APIView):
         serializer = UserDetailSerializer(user, context={"request":request})
         return Response(serializer.data)
 
-    # 유저정보 수정 
+    # 유저정보 수정  & 회원탈퇴 (status=False) - test done
     def put(self, request):
         user = request.user
         serializer = UserDetailSerializer(user, data=request.data, partial=True)
@@ -27,33 +35,57 @@ class UserDetail(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
 
-    #  유저가 가입한 그룹 삭제
-    # def post(self, request):
-    #     user = request.user
-    #     group_pk = request.data['pk']
-    #     try:
-    #         workgroup = Workgroup.objects.get(pk=group_pk)
-    #     except Workgroup.DoesNotExist:
-    #         raise NotFound
-    #     try:
-    #         if workgroup.member == user:
-    #             print(">>>here")
-    #             return Response({"msg": "그룹 호스트는 탈퇴할 수 없습니다"})
-    #         user.workgroups.remove(workgroup)
-    #         return Response({"msg": "그룹에서 나오셨습니다"})
-    #         # return Response(status=status.HTTP_200_OK)
-    #     except Exception:
-    #         raise ParseError("그룹 삭제 실패")
+class WorkGroupList(APIView):
+    """유저가 가입한 그룹 관련"""
 
+    permission_classes = [IsAuthenticated]
 
-    # 유저삭제(회원탈퇴) - status: False
-    def put(self, request):
-        user = request.user
-        serializer = UserDetailSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            user = serializer.save()
-            serializer = UserDetailSerializer(user)
+    def get(self, request):
+        # 모든 그룹 불러오기 (?all)
+        if bool(request.query_params.dict()) == True:
+            groups = Workgroup.objects.all()
+            serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
             return Response(serializer.data)
+        # 유저가 속한 그룹 불러오기
+        user = request.user
+        groups = user.workgroups.all()
+        serializer = WorkgroupSerializer(groups, many=True, context={"request":request})
+        return Response(serializer.data)
+
+    # 그룹 생성
+    def post(self, request):
+        user = request.user
+        code = "a"
+        code += str(random.randrange(100, 999))
+        request.data['group_code'] = code
+        serializer = WorkgroupSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    workgroup = serializer.save(member=user)
+                    user.workgroups.add(workgroup)
+                    serializer = WorkgroupSerializer(workgroup,  context={'request': request})
+                    return Response(serializer.data)
+            except Exception:
+                raise ParseError('그룹생성실패')
         else:
             return Response(serializer.errors)
+        
+    #  그룹 탈퇴  - test done
+    def put(self, request):
+        user = request.user
+        group_pk = request.data['pk']
+        try:
+            # workgroup = Workgroup.objects.get(pk=group_pk)
+            workgroup = get_a_group(group_pk)
+        except Workgroup.DoesNotExist:
+            raise NotFound
+        try:
+            if workgroup.member == user:
+                return Response({"msg": "그룹 호스트는 탈퇴할 수 없습니다"})
+            user.workgroups.remove(workgroup)
+            return Response({"msg": "그룹에서 나오셨습니다"})
+        except Exception:
+            raise ParseError("그룹 삭제 실패")
