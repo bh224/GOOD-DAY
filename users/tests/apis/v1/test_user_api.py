@@ -113,3 +113,25 @@ class TestWorkgroupAPI(APITestCase):
         # Then
         self.assertEqual("그룹에서 나오셨습니다", data['msg'])
         self.assertFalse(user1.workgroups.filter(pk=workgroup.pk).exists())
+
+    def test_get_group_list_I_joined(self) -> None:
+        # Given
+        user2 = User.objects.create(username="test_user2", password="1234")
+        self.client.force_login(user2)
+        groups = [Workgroup.objects.create(group_code=f"a{i}", member_id=user2.pk) for i in range(1, 11)]
+        self.client.logout()
+        user1 = self.user_logged_in()
+        [user1.workgroups.add(i) for i in Workgroup.objects.all().order_by('group_code')[0:5]]
+
+        # When
+        response = self.client.get(
+            f"/api/v1/users/workgroups"
+        )
+            
+        data = response.json()
+
+        # Then
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("a1", data[0]['group_code'])
+
+

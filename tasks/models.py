@@ -1,5 +1,6 @@
 from django.db import models
 from common.models import CommonMode
+# from tasks.services.task_service import get_comment_counts_attached_a_task
 
 # Create your models here.
 class Task(CommonMode):
@@ -26,7 +27,7 @@ class Task(CommonMode):
     group = models.ForeignKey("users.Workgroup", on_delete=models.CASCADE, null=True, blank=True)
     content = models.CharField(max_length=250)
     type = models.CharField(max_length=20, choices=TaskTypeChoices.choices)
-    limit_date = models.DateTimeField(null=True, blank=True)
+    limit_date = models.DateTimeField()
     status = models.CharField(max_length=20, default="doing")
 
     def __str__(self):

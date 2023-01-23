@@ -335,7 +335,7 @@ class TodayDetail(APIView):
                 serializer = TodayListSerializer(today)
                 return Response(serializer.data)
             except Today.DoesNotExist:
-                raise NotFound
+                raise NotFound({"detail": "투데이 등록해 주세요"})
         # 유저 모든 today 불러오기
         todays = Today.objects.filter(user=request.user)
         serializer = TodayListSerializer(todays, many=True)

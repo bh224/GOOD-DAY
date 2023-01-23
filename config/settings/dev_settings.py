@@ -40,6 +40,8 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken", #token authentication
     "corsheaders",
+    'django.contrib.staticfiles', 
+    "debug_toolbar",
 ]
 
 CUSTOM_APPS = [
@@ -54,7 +56,6 @@ SYSTEM_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
 ]
 
 INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
@@ -68,7 +69,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+INTERNAL_IPS = ('127.0.0.1',)
 
 ROOT_URLCONF = "config.urls"
 
@@ -171,27 +175,27 @@ AUTH_USER_MODEL = "users.User"
 
 
 
-# CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
-# CORS_ALLOW_CREDENTIALS = True
-# CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"]
-
-
-
-
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
-
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"]
 
 
 
-SESSION_COOKIE_HTTPONLY = False 
-CSRF_COOKIE_HTTPONLY = False 
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SAMESITE = "None"
+# CORS_ALLOW_CREDENTIALS = True
+# CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 
-SESSION_COOKIE_DOMAIN = ".127.0.0.1"
-CSRF_COOKIE_DOMAIN = ".127.0.0.1"
+# CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+
+
+
+# SESSION_COOKIE_HTTPONLY = False 
+# CSRF_COOKIE_HTTPONLY = False 
+
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SAMESITE = "None"
+# SESSION_COOKIE_SAMESITE = "None"
+
+# SESSION_COOKIE_DOMAIN = ".127.0.0.1"
+# CSRF_COOKIE_DOMAIN = ".127.0.0.1"

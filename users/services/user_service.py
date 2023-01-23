@@ -1,5 +1,5 @@
 import random
-from sqlite3 import IntegrityError
+from django.db.models import QuerySet
 from users.models import User, Workgroup
 
 
@@ -19,3 +19,8 @@ def create_a_group_code(group_code: str) -> str:
         else:
             return group_code
 
+def get_members_in_group(group_pk: str) -> QuerySet[User]:
+    return(
+        Workgroup.objects.filter(pk=group_pk)
+        .prefetch_related("users")
+    )

@@ -59,11 +59,17 @@ class TestWorkgroupServie(APITestCase):
     # 내가 가입한 그룹 리스트
     def test_all_groups_list_I_joined(self) -> None:
         # Given
+        user = User.objects.create(username="test", password="1234")
+        user2 = User.objects.create(username="test2", password="1234")
+        groups =  [Workgroup.objects.create(group_code=f"{i}", member_id=user2.pk) for i in range(1, 10)]
+        user.workgroups.add(groups[0])
 
         # When
+        my_group = user.workgroups.all()
 
         # Then
-        pass
+        self.assertEqual(1, len(my_group))
+        
 
     # 그룹 가입
     def test_join_a_group(self) -> None:

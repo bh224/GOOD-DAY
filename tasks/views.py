@@ -6,93 +6,95 @@ from rest_framework.exceptions import NotFound, PermissionDenied, ParseError
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import api_view
+from tasks.services.task_service import get_date_list
 from users.models import User, Workgroup
 from .models import Task, Comment
 from .serializers import TaskSerializer, TasksListSerializers, CommentSerializer
 from tasks import serializers
 
 # Create your views here.
-class Tasks(APIView):
-    def get(self, request):
-        """오늘 등록한 일정 불러오기"""
+# class Tasks(APIView):
+#     def get(self, request):
+#         """오늘 등록한 일정 불러오기"""
 
-        today = datetime.now().strftime("%Y-%m-%d")
-        all_tasks = Task.objects.filter(
-            author=request.user,
-            created_at__contains=today,
-        ).order_by("-created_at")
-        serializer = TasksListSerializers(all_tasks, many=True)
-        return Response(serializer.data)
+#         today = datetime.now().strftime("%Y-%m-%d")
+#         all_tasks = Task.objects.filter(
+#             author=request.user,
+#             created_at__contains=today,
+#         ).order_by("-created_at")
+#         serializer = TasksListSerializers(all_tasks, many=True)
+#         return Response(serializer.data)
 
-    def post(self, request):
-        # limit_date=null일경우 오늘 날짜로 등록
-        if request.data.get("limit_date") == "":
-            limit = date.today().isoformat()
-            request.data["limit_date"] = limit
-        # type이 task인 경우 status는 yet으로 변경
-        if request.data.get("type") == "task":
-            request.data["status"] = "yet"
-            # group_pk 있는 경우 그룹 task
-            group_pk = request.data["group_pk"]
-            if group_pk:
-                try:
-                    group = Workgroup.objects.get(pk=group_pk)
-                except Workgroup.DoesNotExist:
-                    raise NotFound
-        # tasker=null인경우 담당자는 본인
-        if request.data.get("tasker") == "" or request.data.get("tasker") == None:
-            tasker = request.user
-        else:
-            tasker_pk = request.data.get("tasker")
-            tasker = User.objects.get(pk=tasker_pk)
-        serializer = TaskSerializer(data=request.data)
+#     def post(self, request):
+#         # limit_date=null일경우 오늘 날짜로 등록
+#         if request.data.get("limit_date") == "":
+#             limit = date.today().isoformat()
+#             request.data["limit_date"] = limit
+#         # type이 task인 경우 status는 yet으로 변경
+#         if request.data.get("type") == "task":
+#             request.data["status"] = "yet"
+#             # group_pk 있는 경우 그룹 task
+#             group_pk = request.data["group_pk"]
+#             if group_pk:
+#                 try:
+#                     group = Workgroup.objects.get(pk=group_pk)
+#                 except Workgroup.DoesNotExist:
+#                     raise NotFound
+#         # tasker=null인경우 담당자는 본인
+#         if request.data.get("tasker") == "" or request.data.get("tasker") == None:
+#             tasker = request.user
+#         else:
+#             tasker_pk = request.data.get("tasker")
+#             tasker = User.objects.get(pk=tasker_pk)
+#         serializer = TaskSerializer(data=request.data)
 
-        if serializer.is_valid():
-            if request.data.get("type") == "task":
-                task = serializer.save(author=request.user, tasker=tasker, group=group)
-            else:
-                task = serializer.save(author=request.user)
-            serializer = TaskSerializer(task, context={"request": request})
-            return Response(serializer.data)
-        return Response(serializer.errors)
-
-
-class TasksToMe(APIView):
-    """오늘 나에게 온 그룹 task"""
-
-    def get(self, request):
-        now = datetime.now()
-        all_tasks = Task.objects.filter(
-            tasker=request.user,
-            created_at__contains=date(now.year, now.month, now.day),
-        ).order_by("-created_at")
-
-        serializer = TasksListSerializers(all_tasks, many=True)
-        return Response(serializer.data)
+#         if serializer.is_valid():
+#             if request.data.get("type") == "task":
+#                 task = serializer.save(author=request.user, tasker=tasker, group=group)
+#             else:
+#                 task = serializer.save(author=request.user)
+#             serializer = TaskSerializer(task, context={"request": request})
+#             return Response(serializer.data)
+#         return Response(serializer.errors)
 
 
+# class TasksToMe(APIView):
+#     """오늘 나에게 온 그룹 task"""
 
-class AllTasks(APIView):
-    """나의 모든 일정 가져오기"""
+#     def get(self, request):
+#         now = datetime.now()
+#         all_tasks = Task.objects.filter(
+#             tasker=request.user,
+#             created_at__contains=date(now.year, now.month, now.day),
+#         ).order_by("-created_at")
 
-    task_dates = set()
-    def get(self, request):
-        # 쿼리파라미터로 받아온 날짜(작성일)별 일정
-        if bool(request.query_params.dict()) == True:
-            date = request.query_params.dict()["created_at"]
-            all_tasks = Task.objects.filter(author=request.user, created_at__contains=date)
-            serializer = TaskSerializer(
-                all_tasks, many=True, context={"request": request}
-            )
-            return Response(serializer.data)
+#         serializer = TasksListSerializers(all_tasks, many=True)
+#         return Response(serializer.data)
 
-        # 쿼리파라미터 없을 시 작성일 리스트 반환
-        all_tasks = Task.objects.filter(
-            Q(author=request.user) | Q(tasker=request.user)
-        ).values("created_at")
-        for task in all_tasks:
-            self.task_dates.add(task["created_at"].strftime("%Y-%m-%d"))
-        return Response({"data": sorted(list(self.task_dates), reverse=True)})
+
+
+# class AllTasks(APIView):
+#     """나의 모든 일정 가져오기"""
+
+#     task_dates = set()
+#     def get(self, request):
+#         # 쿼리파라미터로 받아온 날짜(작성일)별 일정 -> 함수 따로?
+#         if bool(request.query_params.dict()) == True:
+#             date = request.query_params.dict()["created_at"]
+#             all_tasks = Task.objects.filter(author=request.user, created_at__contains=date)
+#             serializer = TaskSerializer(
+#                 all_tasks, many=True, context={"request": request}
+#             )
+#             return Response(serializer.data)
+
+#         # 쿼리파라미터 없을 시 작성일 리스트 반환
+#         all_tasks = Task.objects.filter(
+#             Q(author=request.user) | Q(tasker=request.user)
+#         ).values("created_at")
+#         for task in all_tasks:
+#             self.task_dates.add(task["created_at"].strftime("%Y-%m-%d"))
+#         # all_tasks = Task.objects.filter(author=user).values('created_at__date').annotate(count=Count('pk')) 
+#         return Response({"data": sorted(list(self.task_dates), reverse=True)})
 
 
 class TaskDetail(APIView):
@@ -112,7 +114,7 @@ class TaskDetail(APIView):
         serializer = TaskSerializer(task, context={"request":request})
         return Response(serializer.data)
 
-    # 일정 숫정하기
+    # 일정 수정하기
     def put(self, request, pk):
         task = self.get_obj(pk)
         tasker_pk = request.data.get("tasker")

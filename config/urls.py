@@ -22,4 +22,5 @@ urlpatterns = [
     path("", views.index,  name="index.html"),
     path("api/v1/tasks/", include("tasks.urls")),
     path("api/v1/users/", include("users.urls")),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]

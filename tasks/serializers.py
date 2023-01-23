@@ -1,3 +1,4 @@
+from dataclasses import fields
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from users.serializers import UserInfoSerializer, WorkgroupSerializer
@@ -19,9 +20,8 @@ class TasksListSerializers(ModelSerializer):
             "status",
             "created_at",
             "limit_date",
-            "counts"
+            "counts",
         )
-
 
     def __str__(self):
         return self.name

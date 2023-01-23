@@ -10,7 +10,7 @@ from users.serializers import (
     WorkgroupSerializer,
     TodayListSerializer,
 )
-from users.models import Workgroup
+from users.models import User, Workgroup
 from users.services.user_service import create_a_group_code, get_a_group
 
 
