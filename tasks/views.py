@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from tasks.services.task_service import get_date_list
 from users.models import User, Workgroup
 from .models import Task, Comment
-from .serializers import TaskSerializer, TasksListSerializers, CommentSerializer
+from .serializers import CreateCommentSerializer, CreateTaskSerializer, TaskSerializer, TasksListSerializers, CommentSerializer
 from tasks import serializers
 
 # Create your views here.
@@ -97,147 +97,151 @@ from tasks import serializers
 #         return Response({"data": sorted(list(self.task_dates), reverse=True)})
 
 
-class TaskDetail(APIView):
-    """
-    상세일정 불러오기/수정하기/삭제하기
-    """
-    permission_classes = [IsAuthenticated]
-    # 일정  상세 불러오기
-    def get_obj(self, pk):
-        try:
-            return Task.objects.get(pk=pk)
-        except Task.DoesNotExist:
-            raise NotFound
+# class TaskDetail(APIView):
+#     """
+#     상세일정 불러오기/수정하기/삭제하기
+#     """
+#     permission_classes = [IsAuthenticated]
+#     # 일정  상세 불러오기
+#     def get_obj(self, pk):
+#         try:
+#             return Task.objects.get(pk=pk)
+#         except Task.DoesNotExist:
+#             raise NotFound
 
-    def get(self, request, pk):
-        task = self.get_obj(pk)
-        serializer = TaskSerializer(task, context={"request":request})
-        return Response(serializer.data)
+#     def get(self, request, pk):
+#         # task = self.get_obj(pk)
+#         task = Task.objects.select_related("author").select_related("tasker").select_related("group").get(pk=pk)
+#         serializer = TaskSerializer(task, context={"request":request})
+#         return Response(serializer.data)
 
-    # 일정 수정하기
-    def put(self, request, pk):
-        task = self.get_obj(pk)
-        tasker_pk = request.data.get("tasker")
-        group_pk = request.data.get("groupPk")
-        type = request.data.get("type")
-        if group_pk == "":
-            new_group = task.group
-        else:
-            try:
-                new_group = Workgroup.objects.get(pk=group_pk)
-            except Workgroup.DoesNotExist:
-                raise ParseError("Group not found")
-        if tasker_pk == "":
-            new_tasker = task.tasker
-        else:
-            try:
-                new_tasker = User.objects.get(pk=tasker_pk)
-            except User.DoesNotExist:
-                raise ParseError("User not found")
-        # 권한 검증
-        if task.author != request.user:
-            raise PermissionDenied
-        serializer = TaskSerializer(task, data=request.data, partial=True)
-        if serializer.is_valid():
-            if type == "task":
-                new_task = serializer.save(group=new_group, tasker=new_tasker)
-                serializer = TaskSerializer(new_task, context={"request":request})
-                return Response(serializer.data)
-            else:
-                new_task = serializer.save()
-                serializer = TaskSerializer(new_task, context={"request":request})
-                return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+#     # 일정 수정하기
+#     def put(self, request, pk):
+#         task = self.get_obj(pk)
+#         tasker_pk = request.data.get("tasker")
+#         group_pk = request.data.get("groupPk")
+#         type = request.data.get("type")
+#         if group_pk == "":
+#             new_group = task.group
+#         else:
+#             try:
+#                 new_group = Workgroup.objects.get(pk=group_pk)
+#             except Workgroup.DoesNotExist:
+#                 raise ParseError("Group not found")
+#         if tasker_pk == "":
+#             new_tasker = task.tasker
+#         else:
+#             try:
+#                 new_tasker = User.objects.get(pk=tasker_pk)
+#             except User.DoesNotExist:
+#                 raise ParseError("User not found")
+#         # 권한 검증
+#         if task.author != request.user:
+#             raise PermissionDenied
+#         serializer = CreateTaskSerializer(task, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             if type == "task":
+#                 new_task = serializer.save(group=new_group, tasker=new_tasker)
+#                 serializer = TaskSerializer(new_task, context={"request":request})
+#                 return Response(serializer.data)
+#             else:
+#                 new_task = serializer.save()
+#                 serializer = TaskSerializer(new_task, context={"request":request})
+#                 return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
 
-    # 일정 삭제하기
-    def delete(self, request, pk):
-        task = self.get_obj(pk)
-        if task.author != request.user:
-            raise PermissionDenied
-        task.delete()
-        return Response({"msg": "done"})
+#     # 일정 삭제하기
+#     def delete(self, request, pk):
+#         task = self.get_obj(pk)
+#         if task.author != request.user:
+#             raise PermissionDenied
+#         task.delete()
+#         return Response({"msg": "done"})
 
-class GroupTasks(APIView):
-    """그룹의 오늘 일정 불러오기"""
+# class GroupTasks(APIView):
+#     """그룹의 오늘 일정 불러오기"""
 
-    def get(self, request, pk):
-        today = datetime.now().strftime("%Y-%m-%d")
-        # 내가 속한 그룹 멤버들의 오늘 할일
-        all_tasks = Task.objects.filter(group=pk, created_at__contains=today)
-        serializer = TaskSerializer(all_tasks, many=True, context={"request":request})
-        return Response(serializer.data)
+#     def get(self, request, pk):
+#         today = datetime.now().strftime("%Y-%m-%d")
+#         # 내가 속한 그룹 멤버들의 오늘 할일
+#         all_tasks = Task.objects.filter(group=pk, created_at__contains=today)
+#         serializer = TaskSerializer(all_tasks, many=True, context={"request":request})
+#         return Response(serializer.data)
 
-class Comments(APIView):
-    """task에 달린 코멘트 가져오기, 작성하기"""
+# class Comments(APIView):
+#     """task에 달린 코멘트 가져오기, 작성하기"""
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+#     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_obj(self, pk):
-        try:
-            return Task.objects.get(pk=pk)
-        except Task.DoesNotExist:
-            raise NotFound
+#     def get_obj(self, pk):
+#         try:
+#             return Task.objects.get(pk=pk)
+#         except Task.DoesNotExist:
+#             raise NotFound
 
-    def get(self, request, pk):
-        task = self.get_obj(pk)
-        all_comments = task.comments.all()
-        serializer = CommentSerializer(all_comments, many=True)
-        return Response(serializer.data)
+#     def get(self, request, pk):
+#         task = self.get_obj(pk)
+#         # all_comments = task.comments.all()
+#         prefetched_comments = Task.objects.filter(pk=pk).prefetch_related("comments")
+#         for i in prefetched_comments:
+#             all_comments = i.comments.all()
+#         serializer = CommentSerializer(all_comments, many=True)
+#         return Response(serializer.data)
 
-    # 코멘트 작성하기
-    def post(self, request, pk):
-        task = self.get_obj(pk)
-        serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
-            comment = serializer.save(task=task, author=request.user)
-            serializer = CommentSerializer(comment)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+#     # 코멘트 작성하기
+#     def post(self, request, pk):
+#         task = self.get_obj(pk)
+#         serializer = CreateCommentSerializer(data=request.data)
+#         if serializer.is_valid():
+#             comment = serializer.save(task=task, author=request.user)
+#             serializer = CommentSerializer(comment)
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
 
 
-class CommentDetail(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+# class CommentDetail(APIView):
+#     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_task(self, pk):
-        try:
-            return Task.objects.get(pk=pk)
-        except Task.DoesNotExist:
-            raise NotFound
+#     def get_task(self, pk):
+#         try:
+#             return Task.objects.get(pk=pk)
+#         except Task.DoesNotExist:
+#             raise NotFound
 
-    def get_comment(self, pk):
-        try:
-            return Comment.objects.get(pk=pk)
-        except:
-            raise NotFound
+#     def get_comment(self, pk):
+#         try:
+#             return Comment.objects.get(pk=pk)
+#         except:
+#             raise NotFound
 
-    # 코멘트 상세 불러오기
-    def get(self, request, pk, comment_id):
-        comment = self.get_comment(comment_id)
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data)
+#     # 코멘트 상세 불러오기
+#     def get(self, request, pk, comment_id):
+#         comment = self.get_comment(comment_id)
+#         serializer = CommentSerializer(comment)
+#         return Response(serializer.data)
 
-    # 코멘트 수정하기
-    def put(self, request, pk, comment_id):
-        task = self.get_task(pk)
-        comment = self.get_comment(comment_id)
-        serializer = CommentSerializer(comment, data=request.data, partial=True)
-        if serializer.is_valid():
-            updated_comment = serializer.save(task=task, author=request.user)
-            serializer = CommentSerializer(updated_comment)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+#     # 코멘트 수정하기
+#     def put(self, request, pk, comment_id):
+#         task = self.get_task(pk)
+#         comment = self.get_comment(comment_id)
+#         serializer = CreateCommentSerializer(comment, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             updated_comment = serializer.save(task=task, author=request.user)
+#             serializer = CommentSerializer(updated_comment)
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
 
-    # 코멘트 삭제하기
-    def delete(self, request, pk, comment_id):
-        comment = self.get_comment(comment_id)
-        print(comment)
-        if comment.author != request.user:
-            raise ParseError("접근권한이 없습니다")
-        comment.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+#     # 코멘트 삭제하기
+#     def delete(self, request, pk, comment_id):
+#         comment = self.get_comment(comment_id)
+#         print(comment)
+#         if comment.author != request.user:
+#             raise ParseError("접근권한이 없습니다")
+#         comment.delete()
+#         return Response(status=HTTP_204_NO_CONTENT)
 
 @api_view(('GET',))
 def task_counts(request):
