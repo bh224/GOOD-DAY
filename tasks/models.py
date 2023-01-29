@@ -1,5 +1,6 @@
 from django.db import models
 from common.models import CommonMode
+# from tasks.services.task_service import get_comment_counts_attached_a_task
 
 # Create your models here.
 class Task(CommonMode):
@@ -23,14 +24,19 @@ class Task(CommonMode):
         blank=True,
         related_name="sendtask",
     )
+    group = models.ForeignKey("users.Workgroup", on_delete=models.CASCADE, null=True, blank=True)
     content = models.CharField(max_length=250)
     type = models.CharField(max_length=20, choices=TaskTypeChoices.choices)
-    limit_date = models.DateTimeField(null=True, blank=True)
+    limit_date = models.DateTimeField()
     status = models.CharField(max_length=20, default="doing")
+    comment_cnt = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Task num: {self.pk}"
-
+        
+    # 코멘트 개수
+    # def comment_count(self):
+    #     return self.comments.count()
 
 class Comment(CommonMode):
     task = models.ForeignKey("tasks.Task", on_delete=models.CASCADE, related_name="comments")
@@ -39,3 +45,5 @@ class Comment(CommonMode):
 
     def __str__(self):
         return f"{self.task.pk} : {self.content}"
+
+

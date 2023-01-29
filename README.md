@@ -4,14 +4,14 @@
 
 
 
-☀️🎶 make your day better...[good-day!](https://good-day.today/)
+☀️🎶 make your day better...[good-day!](https://www.good-day.today/)
 
 ##### 🚩 프로젝트소개
 - 개인 또는 그룹 간 일정관리 공유 사이트
 
 ##### 🗓️ 개발기간
-- 2022.12. (for 2wks) 
-- But...continuing to update
+- v.1.0 2022.12. (for 2wks)
+- v.1.1 Keep updating
 
 ##### 🤝 멤버구성
 - 1인 프로젝트
@@ -22,6 +22,7 @@
   - Python 3.9
   - Django 4.14
   - Django Rest Framwork
+  - test 코드 작성 (v.1.1~)
 - ️➡️ Frontend : [소스코드](https://github.com/bh224/GOOD_DAY_FRONTEND)
   - ReactJS
   - TypeScript
@@ -31,9 +32,11 @@ MySQL
 ![ERD_221227](https://user-images.githubusercontent.com/104023868/209669433-b89f7946-496d-46e9-a4c8-b81b98bcf822.jpg)
 
 ##### 🌏 배포
-- AWS EC2
+- AWS EC2 (백엔드 서버)
   - Nginx
   - Gunicorn
+- AWS S3 + CloudFront (프론트엔드 서버)
+  - Github Actions
 
 ##### 📌 주요기능
 - 로그인
@@ -48,4 +51,3 @@ MySQL
   - 그룹 유저에게 일정 부여
   - 그룹 유저간 일정 및 투데이(on/off) 표시
   - 내가 가입한 그룹 유저의 오늘 일정 확인
-

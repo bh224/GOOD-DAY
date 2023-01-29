@@ -1,6 +1,9 @@
 .env
 migrations/
 my.cnf
+my-prod.cnf
+logs/
+memo.txt
 
 
 
