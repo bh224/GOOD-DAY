@@ -2,7 +2,7 @@ import random
 from django.db import transaction
 from django.db.models import Prefetch
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ParseError, NotFound, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -153,6 +153,7 @@ class WorkGroupDetail(APIView):
 
 # 내가 가입한 그룹 페이지 리스트
 @api_view(('GET',))
+@permission_classes([IsAuthenticated])
 def page_lists(request):
     page_size = 5
     total_page = get_total_group_page(request.user.pk, page_size)

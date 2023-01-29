@@ -2,7 +2,7 @@ from datetime import datetime, date
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound, PermissionDenied, ParseError
 from rest_framework.permissions import  IsAuthenticated
 from tasks.serializers import CreateTaskSerializer, TaskSerializer, TasksListSerializers
@@ -14,6 +14,7 @@ from users.models import User, Workgroup
 
 "일정 작성한 날짜리스트 불러오기"
 @api_view(('GET',))
+@permission_classes([IsAuthenticated])
 def date_list(request):
     try:
         page = request.query_params.get("page", 1)
