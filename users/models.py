@@ -7,7 +7,8 @@ from common.models import CommonMode
 class User(AbstractUser):
     nickname = models.CharField(max_length=50, default="")
     status = models.BooleanField(default=True)
-    workgroups = models.ManyToManyField("users.Workgroup", null=True, blank=True, related_name="users")
+    # workgroups = models.ManyToManyField("users.Workgroup", related_name="users", through="User_Mygroups")
+    workgroups = models.ManyToManyField("users.Workgroup", related_name="users")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -15,22 +16,28 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-
 class Workgroup(CommonMode):
     group_code = models.CharField(max_length=100, unique=True)
     group_name = models.CharField(max_length=150, null=True, blank=True)
     description = models.CharField(max_length=250, null=True, blank=True)
     member = models.ForeignKey("users.User", on_delete=models.CASCADE)  #그룹 만든 사람
 
-    def __str__(self):
-        return self.group_name
     
     class Meta:
         indexes = [
             models.Index(fields=("group_code",), name="idx_group_code")
         ]
 
+    def __str__(self):
+        return self.group_name
 
+# class User_Mygroups(models.Model):
+#     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+#     workgroup = models.ForeignKey("users.Workgroup", on_delete=models.CASCADE)
+#     joined_at = models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#         constraints = [models.UniqueConstraint(fields=["user", "workgroup"], name="unique_user_group")]
 
 class Today(CommonMode):
     class TodayStateChoices(models.TextChoices):

@@ -5,12 +5,12 @@ from .models import User, Workgroup, Today
 # Register your models here.
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    fieldsets = (
-        (
-            "User Info",
-            {"fields": ("username", "password", "nickname", "email", "status", "workgroups")},
-        ),
-    )
+    # fieldsets = (
+    #     (
+    #         "User Info",
+    #         {"fields": ("username", "password", "nickname", "email", "status", "workgroups")},
+    #     ),
+    # )
     list_display = (
         "username",
         "status",
