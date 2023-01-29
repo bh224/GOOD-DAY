@@ -28,6 +28,8 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = env("SECRET_KEY")
 NV_SECRET = env("NV_SECRET")
+GG_CLIENT_SECRET = env("GG_CLIENT_SECRET")
+BASE_URL_LOCAL = env("BASE_URL_LOCAL")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
