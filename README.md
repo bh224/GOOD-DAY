@@ -10,8 +10,8 @@
 - 개인 또는 그룹 간 일정관리 공유 사이트
 
 ##### 🗓️ 개발기간
-- 2022.12. (for 2wks)
-- Keep updating
+- v.1.0 2022.12. (for 2wks)
+- v.1.1 Keep updating
 
 ##### 🤝 멤버구성
 - 1인 프로젝트
@@ -22,6 +22,7 @@
   - Python 3.9
   - Django 4.14
   - Django Rest Framwork
+  - test 코드 작성 (v.1.1~)
 - ️➡️ Frontend : [소스코드](https://github.com/bh224/GOOD_DAY_FRONTEND)
   - ReactJS
   - TypeScript
