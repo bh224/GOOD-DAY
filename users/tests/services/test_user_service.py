@@ -1,7 +1,8 @@
 from django.db import IntegrityError
 from rest_framework.test import APITestCase
 from users.models import User, Workgroup
-from users.services.user_service import create_a_group_code, get_a_user
+from users.services.user_service import get_a_user
+from users.services.group_service import create_a_group_code
 
 
 class TestUserService(APITestCase):
