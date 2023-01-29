@@ -29,13 +29,14 @@ class Task(CommonMode):
     type = models.CharField(max_length=20, choices=TaskTypeChoices.choices)
     limit_date = models.DateTimeField()
     status = models.CharField(max_length=20, default="doing")
+    comment_cnt = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Task num: {self.pk}"
         
     # 코멘트 개수
-    def comment_count(self):
-        return self.comments.count()
+    # def comment_count(self):
+    #     return self.comments.count()
 
 class Comment(CommonMode):
     task = models.ForeignKey("tasks.Task", on_delete=models.CASCADE, related_name="comments")
