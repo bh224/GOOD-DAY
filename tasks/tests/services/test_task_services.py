@@ -87,7 +87,7 @@ class TestTaskServices(APITestCase):
 
         # Then
         self.assertEqual(20, len(my_tasks))
-        self.assertEqual(2, total_page)
+        self.assertEqual(1, len(total_page))
 
     def test_get_group_task_list(self) -> None:
         # Given

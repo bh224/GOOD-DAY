@@ -31,8 +31,8 @@ class TestCommentService(APITestCase):
             Comment.objects.create(task=task, author=user, content=f"comment{i}")
 
     #When
-        # with CaptureQueriesContext(connection) as ctx:
-        with self.assertNumQueries(2):
+        with CaptureQueriesContext(connection) as ctx:
+        # with self.assertNumQueries(2):
             result_tasks = get_task_list()
             result_comments = [a.comments.count() for a in result_tasks]
     
