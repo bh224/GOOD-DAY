@@ -2,6 +2,7 @@
 migrations/
 my.cnf
 my-prod.cnf
+logs/
 
 
 
